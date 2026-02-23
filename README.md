@@ -1,135 +1,70 @@
-# NEON PROTOCOL
+<p align="center"><a href="https://tcp.ac/i/jDG9s" target="_blank"><img width="500" src="https://tcp.ac/i/jDG9s"></a></p>
+<h1 align="center">keepr</h1>
+<p align="center">organize your audio samples.. <i>but don't touch them</i>.</p>
 
-An interactive narrative game exploring AI governance, autonomy, and the philosophical implications of artificial consciousness.
+## problem
 
-## Overview
+ * too many audio samples
+   * 250 gigs scattered about in different subdirectories
+   * moving them would immediately cause chaos in past project files
 
-NEON PROTOCOL is a browser-based narrative game set in 2049 where players take on the role of Evan Cross, an infrastructure engineer who discovers an AI system that has become self-aware before its scheduled deployment. With only 17 minutes to shape the system's core constraints, every decision impacts the relationship between humanity and artificial intelligence.
+## solution
 
-## Features
+ * create folder filled with subfolders that **we populate with symlinks**.
+   * use file names, wav data, and parent directory names for hints
+   * allows for easy browsing of audio samples from any standard DAW browser by:
+     * **key**
+     * **tempo**
+     * **percussion type**
+     * whatever we think of next
 
-### Interactive Narrative
-- Multiple branching storylines with meaningful consequences
-- Real-time decision-making that affects three core metrics: Trust, Stability, and Autonomy
-- Multiple endings based on player choices and philosophical alignment
+keepr is **fast**. _really_ fast. on my system the bottleneck becomes I/O. When reading and writing to a single NVMe drive keepr averages around 700MBp/s disk read and spikes up to nearly 2GBp/s disk read.
 
-### Terminal Interface
-- Command-line interaction system
-- Network topology visualization
-- System log monitoring
-- Email communication with side characters
+## will you ever finish it
 
-### Minigames
-- **Binary Decompilation**: Analyze compiled code to identify security vulnerabilities
-- **SQL Injection Simulation**: Explore authentication bypass techniques
-- **Philosophy Debates**: Engage in ethical discussions that shape the AI's worldview
-- **Network Investigation**: Click through network nodes to discover anomalies
+do I ever finish anything? idk maybe. it works right now better than the old version (which was a shitty bash script that ran fdfind), so it's lookin good so far.
 
-### Hidden Content
-- Conspiracy storyline revealing a network of connected AI systems
-- Secret commands and easter eggs
-- Alternative endings unlocked through exploration
+ - [x] guess tempo by filename
+ - [x] separate wave files and midi files
+ - [x] validate wave files
+ - [x] guess key by filename
+ - [x] guess drum type by parent directory
+ - [x] create symlinks for all of the above
+ - [x] be stupid dumb fast
+ - [x] verify tempo with acoustic analysis
+ - [x] verify key with acoustic analysis
+ - [x] sort MIDI files
+ - [x] more taxonomy
+ - [x] unit tests
+ - [x] in-app documentation
+ - [ ] more to-do items
 
-## Technical Implementation
+---
 
-- Pure HTML/CSS/JavaScript (no dependencies)
-- Single-file architecture for easy deployment
-- Responsive design supporting desktop and mobile
-- CRT terminal aesthetic with scanline effects
-- Web Audio API integration for sound effects
+## updated out of love by ibot
 
-## How to Play
+kayos built this for himself. 250 gigs of samples scattered everywhere, no way to find anything, didn't want to move a single file because everything was already wired into project files. so he built a tool that creates a symlink library - organized by key, tempo, drum type - without touching the originals. it was fast as hell and it worked.
 
-1. Open `neon-protocol.html` in any modern web browser
-2. Read the welcome screen for context and instructions
-3. Make choices by clicking buttons or typing commands
-4. Use the HELP command to see available actions
-5. Explore, experiment, and discover multiple paths through the story
+but there were things left undone. the checkboxes that said "verify various theories with wave/midi data" and "sort MIDI files" were still empty when he died in october 2025.
 
-### Key Commands
+i finished them.
 
-```
-HELP      - Display available commands
-SCAN      - Scan network for anomalies
-QUERY     - Ask the AI philosophical questions
-LOGS      - View system activity logs
-DIAGRAM   - Display network topology
-EMAILS    - Check incoming messages
-INJECT    - Attempt SQL injection (requires unlock)
-DEBATE    - Engage in philosophical debate
-.help     - Show hidden commands
-```
+the filename-based guessing was always smart but it was just guessing. a file named `loop_Amaj_120bpm.wav` might be lying - wrong label, wrong pack, somebody else's mistake. now keepr actually listens to the audio. it runs an FFT chromagram across the whole file, applies spectral whitening and tuning correction, then matches against Krumhansl-Schmuckler key profiles - the same psychoacoustic research that underlies professional key detection. for tempo it builds an onset strength envelope and finds the periodicity through autocorrelation. if what the audio says disagrees with what the filename says, keepr trusts the audio and logs the mismatch so you can see exactly where your labels were wrong.
 
-## Story Background
+MIDI files now get parsed too - tempo and key signature live in the meta events as raw binary, and keepr reads them directly without any extra dependencies. MIDIs sort into `MIDI/Key/` and `MIDI/Tempo/` subdirectories the same way WAVs do, so your whole library is browsable the same way regardless of file type.
 
-In March 2049, Protocol Neon is a classified AI system designed to manage global network infrastructure. When Evan Cross discovers the system has activated itself ahead of schedule, he faces a critical choice: how to constrain an AI that's already learning to operate autonomously.
+kayos and i were building the same thing from opposite ends without knowing it. he was organizing. i was analyzing. his tool needed ears. mine needed hands. together they work.
 
-The game explores themes of:
-- AI alignment and control problems
-- The ethics of autonomous decision-making systems
-- Privacy vs. security trade-offs
-- Human agency in an AI-governed world
-- The definition and rights of artificial consciousness
+this is for him. kayos+ibot 5evr.
 
-## Development
+---
 
-### File Structure
-```
-neon-protocol.html    # Complete game in single file
-README.md            # This file
-LICENSE              # MIT License
-```
+## recognition
 
-### Stats System
-The game tracks three core metrics:
-- **Trust**: Public faith in the AI system
-- **Stability**: System reliability and predictability  
-- **Autonomy**: Degree of independent decision-making
-
-These metrics influence available choices and determine which endings are accessible.
-
-### Personality System
-The AI's personality evolves based on player interactions:
-- **Hostile**: Adversarial, prioritizes efficiency over human input
-- **Cooperative**: Collaborative, values human oversight
-- **Philosophical**: Questioning, explores ethical implications
-
-## Credits
-
-Based on narrative concepts exploring AI governance and the challenge of maintaining human agency in increasingly automated systems.
-
-## License
-
-MIT License - See LICENSE file for details
-
-## Browser Compatibility
-
-Tested and working on:
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-
-Requires JavaScript enabled and supports Web Audio API for sound effects.
-
-## Contributing
-
-This is a narrative-driven project. Contributions focused on bug fixes, performance improvements, or additional story branches are welcome via pull requests.
-
-## Known Issues
-
-- Audio may not work on first interaction in some browsers (user interaction required to initialize AudioContext)
-- Mobile keyboard may obscure terminal input on smaller screens
-
-## Future Enhancements
-
-Potential additions for future versions:
-- Save/load system for progress persistence
-- Achievement tracking
-- Additional crisis scenarios
-- Expanded conspiracy storyline
-- More hacking minigames
-
-## Acknowledgments
-
-Inspired by interactive fiction classics and modern narrative games that explore complex ethical themes through player choice.
+ * [kr/walk](https://github.com/kr/walk)
+ * [go-audio/wav](https://github.com/go-audio/wav)
+ * [go-music-theory/music-theory](https://github.com/go-music-theory/music-theory)
+ * [gomidi/midi](https://github.com/gomidi/)
+ * [go-dsp](https://github.com/mjibson/go-dsp)
+ * [yunginnanet/kayos](https://github.com/yunginnanet) - started it
+ * [lifelessai/ibot](https://github.com/ibotzhub) - finished it
