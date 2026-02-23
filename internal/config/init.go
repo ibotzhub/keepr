@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -24,7 +25,8 @@ var (
 	Simulate      = false
 	StatsOnly     = false
 	NoMIDI        = false
-	SkipWavDecode = false
+	SkipWavDecode   = false
+	AnalyzeSeconds  = 10
 )
 
 // GetLogger retrieves a pointer to our zerolog instance.
@@ -55,6 +57,7 @@ var helpStr = `
 --fast, -f       do not parse WAV files
 
 --help, -h       it me
+--analyze-seconds N  seconds of audio to analyze for key/BPM (default: 10)
 
 `
 
@@ -97,6 +100,14 @@ func KeeprInit() {
 			NoMIDI = true
 		case "--fast", "-f":
 			SkipWavDecode = true
+		case "--analyze-seconds":
+			required(i + 1)
+			if secs, err := strconv.Atoi(os.Args[i+1]); err == nil && secs > 0 {
+				AnalyzeSeconds = secs
+				os.Args[i+1] = "_"
+			} else {
+				log.Fatal().Msg("--analyze-seconds requires a positive integer")
+			}
 		case "--source", "-s":
 			required(i)
 			Source = os.Args[i+1]

@@ -12,9 +12,13 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/go-audio/audio"
 	"github.com/go-audio/wav"
 	"gopkg.in/music-theory.v0/key"
 
+	"math"
+
+	"git.tcp.direct/kayos/keepr/internal/analysis"
 	"git.tcp.direct/kayos/keepr/internal/config"
 )
 
@@ -315,6 +319,38 @@ func readWAV(s *Sample) error {
 
 	log.Trace().Msg(fmt.Sprintf("metadata: %v", s.Metadata))
 
+	// Acoustic verification: override filename guesses with measured audio data
+	if !config.SkipWavDecode {
+		if buf, pcmErr := decoder.FullPCMBuffer(); pcmErr == nil && buf != nil {
+			mono := toMonoFloat32(buf)
+			sr := int(buf.Format.SampleRate)
+			// BPM
+			bpm := analysis.DetectBPM(mono, sr)
+			if bpm >= 50 && bpm <= 250 {
+				acousticTempo := int(math.Round(bpm))
+				if s.Tempo == 0 {
+					s.Tempo = acousticTempo
+				} else if s.Tempo != acousticTempo {
+					log.Warn().Str("caller", s.Name).Msgf("BPM mismatch: filename=%d acoustic=%d, trusting acoustic", s.Tempo, acousticTempo)
+					s.Tempo = acousticTempo
+				}
+			}
+			// Key — skip one-shots, too short for reliable detection
+			if _, isOneShot := s.Types[TypeOneShot]; !isOneShot {
+				detectedKey, _ := analysis.DetectKey(mono, sr, float64(config.AnalyzeSeconds))
+				if detectedKey.Root != 0 || detectedKey.Mode != 0 {
+					if s.Key.Root == 0 {
+						s.Key = detectedKey
+					} else if s.Key != detectedKey {
+						log.Warn().Str("caller", s.Name).Msgf("key mismatch: filename=%s acoustic=%s, trusting acoustic",
+							s.Key.Root.String(s.Key.AdjSymbol), detectedKey.Root.String(detectedKey.AdjSymbol))
+						s.Key = detectedKey
+					}
+				}
+			}
+		}
+	}
+
 	decoder = nil // avoid memory leak
 
 	return nil
@@ -346,6 +382,17 @@ func Process(entry fs.DirEntry, dir string) (*Sample, error) {
 	case "midi", "mid":
 		if !config.NoMIDI {
 			s.Types[TypeMIDI] = struct{}{}
+			// Parse MIDI meta events for tempo and key
+			if midiTempo, midiKey, midiErr := parseMIDI(s.Path); midiErr == nil {
+				if midiTempo > 0 && s.Tempo == 0 {
+					s.Tempo = midiTempo
+				}
+				if midiKey.Root != 0 && s.Key.Root == 0 {
+					s.Key = midiKey
+				}
+			} else {
+				log.Debug().Str("caller", s.Name).Err(midiErr).Msg("failed to parse MIDI meta events")
+			}
 			Library.IngestMIDI(s)
 		}
 
@@ -367,4 +414,34 @@ func Process(entry fs.DirEntry, dir string) (*Sample, error) {
 	}
 
 	return s, err
+}
+
+// toMonoFloat32 converts a PCM buffer to normalized mono float32 in [-1,1].
+func toMonoFloat32(buf *audio.IntBuffer) []float32 {
+	numChannels := buf.Format.NumChannels
+	frames := len(buf.Data) / numChannels
+	mono := make([]float32, frames)
+	var maxVal float64
+	switch buf.SourceBitDepth {
+	case 8:
+		maxVal = 128.0
+	case 16:
+		maxVal = 32768.0
+	case 24:
+		maxVal = 8388608.0
+	case 32:
+		maxVal = 2147483648.0
+	default:
+		maxVal = 32768.0
+	}
+	idx := 0
+	for i := 0; i < frames; i++ {
+		var sum float64
+		for ch := 0; ch < numChannels; ch++ {
+			sum += float64(buf.Data[idx])
+			idx++
+		}
+		mono[i] = float32((sum / float64(numChannels)) / maxVal)
+	}
+	return mono
 }

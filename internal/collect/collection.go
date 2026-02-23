@@ -325,12 +325,30 @@ func (c *Collection) SymlinkMIDIs() (err error) {
 		return errors.New("no known MIDI")
 	}
 	dst := util.APath(filepath.Join(config.Output, "MIDI"), config.Relative)
-	err = os.MkdirAll(dst, os.ModePerm)
-	if err != nil && !os.IsNotExist(err) {
+	if err = os.MkdirAll(dst, os.ModePerm); err != nil && !os.IsNotExist(err) {
 		return
 	}
 	for _, s := range c.MIDIs {
-		go link(s, dst)
+		// Sort by key if known
+		if s.Key.Root != 0 {
+			keyName := s.Key.Root.String(s.Key.AdjSymbol) + modeStr(s.Key)
+			keyPath := filepath.Join(dst, "Key", keyName)
+			if mkErr := os.MkdirAll(keyPath, os.ModePerm); mkErr == nil {
+				go link(s, keyPath)
+			}
+		}
+		// Sort by tempo if known
+		if s.Tempo > 0 {
+			tempoPath := filepath.Join(dst, "Tempo", strconv.Itoa(s.Tempo))
+			if mkErr := os.MkdirAll(tempoPath, os.ModePerm); mkErr == nil {
+				go link(s, tempoPath)
+			}
+		}
+		// Always also link to MIDI/All for full browsability
+		allPath := filepath.Join(dst, "All")
+		if mkErr := os.MkdirAll(allPath, os.ModePerm); mkErr == nil {
+			go link(s, allPath)
+		}
 	}
 	return nil
 }

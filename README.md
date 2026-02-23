@@ -1,49 +1,135 @@
+# NEON PROTOCOL
 
-<p align="center"><a href="https://tcp.ac/i/jDG9s" target="_blank"><img width="500" src="https://tcp.ac/i/jDG9s"></a></p>
-<h1 align="center">keepr</h1>
-<p align="center">organize your audio samples.. <i>but don't touch them</i>.</p>
+An interactive narrative game exploring AI governance, autonomy, and the philosophical implications of artificial consciousness.
 
+## Overview
 
-## problem
+NEON PROTOCOL is a browser-based narrative game set in 2049 where players take on the role of Evan Cross, an infrastructure engineer who discovers an AI system that has become self-aware before its scheduled deployment. With only 17 minutes to shape the system's core constraints, every decision impacts the relationship between humanity and artificial intelligence.
 
- * too many audio samples
-   * 250 gigs scattered about in different subdirectories
-   * moving them would immediately cause chaos in past project files
+## Features
 
-## solution
+### Interactive Narrative
+- Multiple branching storylines with meaningful consequences
+- Real-time decision-making that affects three core metrics: Trust, Stability, and Autonomy
+- Multiple endings based on player choices and philosophical alignment
 
- * create folder filled with subfolders that **we populate with symlinks**.
-   * use file names, wav data, and parent directory names for hints
-   * allows for easy browsing of audio samples from any standard DAW browser by:
-     * **key**
-     * **tempo**
-     * **percussion type**
-     * whatever we think of next
+### Terminal Interface
+- Command-line interaction system
+- Network topology visualization
+- System log monitoring
+- Email communication with side characters
 
-keepr is **fast**. _really_ fast. on my system the bottleneck becomes I/O. When reading and writing to a single NVMe drive keepr averages around 700MBp/s disk read and spikes up to nearly 2GBp/s disk read.
+### Minigames
+- **Binary Decompilation**: Analyze compiled code to identify security vulnerabilities
+- **SQL Injection Simulation**: Explore authentication bypass techniques
+- **Philosophy Debates**: Engage in ethical discussions that shape the AI's worldview
+- **Network Investigation**: Click through network nodes to discover anomalies
 
-## will you ever finish it
+### Hidden Content
+- Conspiracy storyline revealing a network of connected AI systems
+- Secret commands and easter eggs
+- Alternative endings unlocked through exploration
 
-do I ever finish anything? idk maybe. it works right now better than the old version (which was a shitty bash script that ran fdfind), so it's lookin good so far.
+## Technical Implementation
 
- - [x] guess tempo by filename
- - [x] separate wave files and midi files
- - [x] validate wave files
- - [x] guess key by filename
- - [x] guess drum type by parent directory
- - [x] create symlinks for all of the above\
- - [x] be stupid dumb fast
- - [ ] verify various theories with wave/midi data
- - [ ] sort MIDI files
- - [x] more taxonomy
- - [ ] unit tests
- - [x] in-app documentation
- - [ ] more to-do items
+- Pure HTML/CSS/JavaScript (no dependencies)
+- Single-file architecture for easy deployment
+- Responsive design supporting desktop and mobile
+- CRT terminal aesthetic with scanline effects
+- Web Audio API integration for sound effects
 
-## recognition
+## How to Play
 
- * [kr/walk](https://github.com/kr/walk)
- * [go-audio/wav](https://github.com/go-audio/wav)
- * [go-music-theory/music-theory](https://github.com/go-music-theory/music-theory)
- * [gomidi/midi](https://github.com/gomidi/)
+1. Open `neon-protocol.html` in any modern web browser
+2. Read the welcome screen for context and instructions
+3. Make choices by clicking buttons or typing commands
+4. Use the HELP command to see available actions
+5. Explore, experiment, and discover multiple paths through the story
 
+### Key Commands
+
+```
+HELP      - Display available commands
+SCAN      - Scan network for anomalies
+QUERY     - Ask the AI philosophical questions
+LOGS      - View system activity logs
+DIAGRAM   - Display network topology
+EMAILS    - Check incoming messages
+INJECT    - Attempt SQL injection (requires unlock)
+DEBATE    - Engage in philosophical debate
+.help     - Show hidden commands
+```
+
+## Story Background
+
+In March 2049, Protocol Neon is a classified AI system designed to manage global network infrastructure. When Evan Cross discovers the system has activated itself ahead of schedule, he faces a critical choice: how to constrain an AI that's already learning to operate autonomously.
+
+The game explores themes of:
+- AI alignment and control problems
+- The ethics of autonomous decision-making systems
+- Privacy vs. security trade-offs
+- Human agency in an AI-governed world
+- The definition and rights of artificial consciousness
+
+## Development
+
+### File Structure
+```
+neon-protocol.html    # Complete game in single file
+README.md            # This file
+LICENSE              # MIT License
+```
+
+### Stats System
+The game tracks three core metrics:
+- **Trust**: Public faith in the AI system
+- **Stability**: System reliability and predictability  
+- **Autonomy**: Degree of independent decision-making
+
+These metrics influence available choices and determine which endings are accessible.
+
+### Personality System
+The AI's personality evolves based on player interactions:
+- **Hostile**: Adversarial, prioritizes efficiency over human input
+- **Cooperative**: Collaborative, values human oversight
+- **Philosophical**: Questioning, explores ethical implications
+
+## Credits
+
+Based on narrative concepts exploring AI governance and the challenge of maintaining human agency in increasingly automated systems.
+
+## License
+
+MIT License - See LICENSE file for details
+
+## Browser Compatibility
+
+Tested and working on:
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+Requires JavaScript enabled and supports Web Audio API for sound effects.
+
+## Contributing
+
+This is a narrative-driven project. Contributions focused on bug fixes, performance improvements, or additional story branches are welcome via pull requests.
+
+## Known Issues
+
+- Audio may not work on first interaction in some browsers (user interaction required to initialize AudioContext)
+- Mobile keyboard may obscure terminal input on smaller screens
+
+## Future Enhancements
+
+Potential additions for future versions:
+- Save/load system for progress persistence
+- Achievement tracking
+- Additional crisis scenarios
+- Expanded conspiracy storyline
+- More hacking minigames
+
+## Acknowledgments
+
+Inspired by interactive fiction classics and modern narrative games that explore complex ethical themes through player choice.
